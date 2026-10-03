@@ -1,15 +1,20 @@
 "use client";
 
-import { ArrowUp, Github, Linkedin, Mail } from "lucide-react";
+import { ArrowUp, Github, Linkedin, Mail, FileText, Search } from "lucide-react";
 import { portfolio } from "@/data/portfolio";
 
-export function Footer() {
+interface FooterProps {
+  onOpenResume?: () => void;
+  onOpenCommandPalette?: () => void;
+}
+
+export function Footer({ onOpenResume, onOpenCommandPalette }: FooterProps) {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
-    <footer className="border-t border-[var(--line)] bg-[var(--card)]/50 relative z-10">
+    <footer className="border-t border-[var(--line)] bg-[var(--card)]/50 relative z-10 no-print">
       <div className="max-w-[1240px] mx-auto px-6 md:px-8 py-14">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8 pb-10 border-b border-[var(--line)]">
           {/* Brand & Tagline */}
@@ -28,12 +33,32 @@ export function Footer() {
           </div>
 
           {/* Quick Nav Links */}
-          <nav className="flex flex-wrap items-center gap-6 text-xs font-mono-custom uppercase tracking-wider text-[var(--text-muted)]">
+          <nav className="flex flex-wrap items-center gap-5 text-xs font-mono-custom uppercase tracking-wider text-[var(--text-muted)]">
             <a href="#about" className="hover:text-[var(--lime)] transition-colors">About</a>
             <a href="#skills" className="hover:text-[var(--lime)] transition-colors">Toolkit</a>
             <a href="#experience" className="hover:text-[var(--lime)] transition-colors">Experience</a>
             <a href="#projects" className="hover:text-[var(--lime)] transition-colors">Work</a>
             <a href="#contact" className="hover:text-[var(--lime)] transition-colors">Contact</a>
+            {onOpenResume && (
+              <button
+                type="button"
+                onClick={onOpenResume}
+                className="hover:text-[var(--lime)] transition-colors flex items-center gap-1"
+              >
+                <FileText size={12} />
+                <span>Resume</span>
+              </button>
+            )}
+            {onOpenCommandPalette && (
+              <button
+                type="button"
+                onClick={onOpenCommandPalette}
+                className="hover:text-[var(--lime)] transition-colors flex items-center gap-1"
+              >
+                <Search size={12} />
+                <span>Cmd+K</span>
+              </button>
+            )}
           </nav>
 
           {/* Socials & Back to Top */}

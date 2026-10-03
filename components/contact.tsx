@@ -13,14 +13,24 @@ import {
   Check, 
   CheckCircle2, 
   AlertCircle, 
-  Loader2 
+  Loader2,
+  Clock,
+  Briefcase
 } from "lucide-react";
 import { portfolio } from "@/data/portfolio";
+
+const INQUIRY_TYPES = [
+  "Full-Time Role",
+  "ERP / Enterprise Project",
+  "Consulting & Architecture",
+  "General Inquiry",
+];
 
 export function Contact() {
   const [copiedEmail, setCopiedEmail] = useState(false);
   const [copiedPhone, setCopiedPhone] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedInquiry, setSelectedInquiry] = useState("Full-Time Role");
   const [statusMessage, setStatusMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   const copyToClipboard = (text: string, type: "email" | "phone") => {
@@ -42,6 +52,8 @@ export function Contact() {
     const form = event.currentTarget;
     const values = new FormData(form);
 
+    const fullMessage = `[Inquiry: ${selectedInquiry}]\n\n${values.get("message")}`;
+
     try {
       const response = await fetch("/api/contact", {
         method: "POST",
@@ -49,7 +61,7 @@ export function Contact() {
         body: JSON.stringify({
           name: values.get("name"),
           email: values.get("email"),
-          message: values.get("message"),
+          message: fullMessage,
         }),
       });
 
@@ -121,7 +133,7 @@ export function Contact() {
           className="lg:col-span-5 space-y-4"
         >
           {/* Direct Email Card */}
-          <div className="glass-card p-5 flex items-center justify-between group">
+          <div className="glass-card p-5 flex items-center justify-between group hover:border-[var(--lime)]/50">
             <div className="flex items-center gap-3.5">
               <div className="w-10 h-10 rounded-xl bg-[var(--lime-bg)] text-[var(--lime)] flex items-center justify-center shrink-0">
                 <Mail size={18} />
@@ -150,7 +162,7 @@ export function Contact() {
           </div>
 
           {/* Direct Phone Card */}
-          <div className="glass-card p-5 flex items-center justify-between group">
+          <div className="glass-card p-5 flex items-center justify-between group hover:border-[var(--sky)]/50">
             <div className="flex items-center gap-3.5">
               <div className="w-10 h-10 rounded-xl bg-[var(--sky-bg)] text-[var(--sky)] flex items-center justify-center shrink-0">
                 <Phone size={18} />
@@ -178,7 +190,7 @@ export function Contact() {
             </button>
           </div>
 
-          {/* Location Card */}
+          {/* Location & Timezone Card */}
           <div className="glass-card p-5 flex items-center gap-3.5">
             <div className="w-10 h-10 rounded-xl bg-[var(--card-subtle)] border border-[var(--line)] text-[var(--text)] flex items-center justify-center shrink-0">
               <MapPin size={18} className="text-[var(--lime)]" />
@@ -187,9 +199,14 @@ export function Contact() {
               <span className="text-[11px] font-mono-custom text-[var(--text-muted)] block uppercase tracking-wider">
                 Location & Timezone
               </span>
-              <span className="font-mono-custom text-xs sm:text-sm font-medium text-[var(--text)]">
-                {portfolio.location} (IST · GMT+5:30)
-              </span>
+              <div className="flex items-center gap-2 mt-0.5">
+                <span className="font-mono-custom text-xs sm:text-sm font-medium text-[var(--text)]">
+                  {portfolio.location}
+                </span>
+                <span className="px-2 py-0.5 rounded text-[10px] font-mono-custom bg-[var(--card-subtle)] border border-[var(--line)] text-[var(--text-muted)]">
+                  {portfolio.timezone}
+                </span>
+              </div>
             </div>
           </div>
 
@@ -232,6 +249,33 @@ export function Contact() {
           className="lg:col-span-7 glass-card p-6 sm:p-8"
         >
           <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Inquiry Type Selector */}
+            <div>
+              <label className="block text-xs font-mono-custom uppercase tracking-wider text-[var(--text-muted)] mb-2 flex items-center gap-1.5">
+                <Briefcase size={13} />
+                <span>What are you looking to discuss?</span>
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {INQUIRY_TYPES.map((type) => {
+                  const isSelected = selectedInquiry === type;
+                  return (
+                    <button
+                      key={type}
+                      type="button"
+                      onClick={() => setSelectedInquiry(type)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-mono-custom transition-all ${
+                        isSelected
+                          ? "bg-[var(--text)] text-[var(--bg)] font-semibold shadow-sm"
+                          : "bg-[var(--card-subtle)] text-[var(--text-muted)] hover:text-[var(--text)] border border-[var(--line)]"
+                      }`}
+                    >
+                      {type}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-mono-custom uppercase tracking-wider text-[var(--text-muted)] mb-2">
@@ -295,8 +339,9 @@ export function Contact() {
                 )}
               </button>
 
-              <span className="text-[11px] font-mono-custom text-[var(--text-muted)]">
-                Average reply time: within 24 hours
+              <span className="text-[11px] font-mono-custom text-[var(--text-muted)] flex items-center gap-1.5">
+                <Clock size={12} className="text-[var(--lime)]" />
+                <span>Average reply: within 24 hours</span>
               </span>
             </div>
 

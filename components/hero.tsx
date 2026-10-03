@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
   ArrowDownRight, 
   ArrowUpRight, 
@@ -15,19 +15,47 @@ import {
   Terminal, 
   Layers, 
   CheckCircle2, 
-  Sparkles 
+  Sparkles,
+  FileText,
+  Play,
+  RotateCcw,
+  Zap
 } from "lucide-react";
 import { portfolio } from "@/data/portfolio";
 
 const TABS = [
   { id: "profile", label: "Engineer.tsx", icon: Code2 },
+  { id: "erp-widget", label: "LiveERPWidget.tsx", icon: Play, badge: "Interactive" },
   { id: "stack", label: "CoreStack.json", icon: Terminal },
-  { id: "philosophy", label: "ERPArchitect.ts", icon: Layers },
+  { id: "philosophy", label: "Architecture.ts", icon: Layers },
 ];
 
-export function Hero() {
+interface HeroProps {
+  onOpenResume?: () => void;
+}
+
+interface MockInvoice {
+  id: string;
+  client: string;
+  amount: string;
+  status: "Pending" | "Approved";
+  date: string;
+}
+
+const INITIAL_INVOICES: MockInvoice[] = [
+  { id: "INV-2026-081", client: "Acme Logistics Global", amount: "$12,450.00", status: "Pending", date: "Oct 2" },
+  { id: "INV-2026-082", client: "Vertex Capital Corp", amount: "$8,200.00", status: "Approved", date: "Sep 28" },
+  { id: "INV-2026-083", client: "Apex Data Systems", amount: "$19,800.00", status: "Pending", date: "Sep 25" },
+];
+
+export function Hero({ onOpenResume }: HeroProps) {
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState("profile");
+
+  // Interactive Live ERP Widget State
+  const [invoices, setInvoices] = useState<MockInvoice[]>(INITIAL_INVOICES);
+  const [erpFilter, setErpFilter] = useState<"All" | "Pending" | "Approved">("All");
+  const [optimisticToast, setOptimisticToast] = useState<string | null>(null);
 
   const copyEmail = () => {
     navigator.clipboard.writeText(portfolio.email);
@@ -35,12 +63,32 @@ export function Hero() {
     setTimeout(() => setCopied(false), 2500);
   };
 
+  const handleApproveInvoice = (id: string) => {
+    // Instant optimistic UI update
+    setInvoices((prev) =>
+      prev.map((inv) => (inv.id === id ? { ...inv, status: "Approved" } : inv))
+    );
+    setOptimisticToast(`Optimistic mutation applied: ${id} verified & approved`);
+    setTimeout(() => setOptimisticToast(null), 3000);
+  };
+
+  const handleResetInvoices = () => {
+    setInvoices(INITIAL_INVOICES);
+    setOptimisticToast("Demo data reset to initial state");
+    setTimeout(() => setOptimisticToast(null), 2000);
+  };
+
+  const filteredInvoices = invoices.filter((inv) => {
+    if (erpFilter === "All") return true;
+    return inv.status === erpFilter;
+  });
+
   return (
     <section id="top" className="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden">
       <div className="section-wrap !py-0">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-14 items-center">
           
-          {/* Left Column: Headline & Intro */}
+          {/* Left Column: Headline & Bio */}
           <div className="lg:col-span-7 flex flex-col items-start">
             
             {/* Availability Badge */}
@@ -85,12 +133,23 @@ export function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="flex flex-wrap items-center gap-3.5 w-full sm:w-auto mb-10"
+              className="flex flex-wrap items-center gap-3 w-full sm:w-auto mb-10"
             >
               <a href="#projects" className="btn-primary w-full sm:w-auto shadow-md">
                 <span>View Selected Work</span>
                 <ArrowDownRight size={17} />
               </a>
+
+              {onOpenResume && (
+                <button
+                  type="button"
+                  onClick={onOpenResume}
+                  className="btn-secondary w-full sm:w-auto flex items-center gap-2"
+                >
+                  <FileText size={15} className="text-[var(--lime)]" />
+                  <span>Resume / CV</span>
+                </button>
+              )}
 
               <a href="#contact" className="btn-secondary w-full sm:w-auto">
                 <span>Contact Me</span>
@@ -161,6 +220,9 @@ export function Hero() {
               <div className="flex items-center gap-2 text-xs font-mono-custom text-[var(--text-muted)]">
                 <MapPin size={14} className="text-[var(--lime)]" />
                 <span>{portfolio.location}</span>
+                <span className="text-[10px] px-2 py-0.5 rounded bg-[var(--card-subtle)] border border-[var(--line)]">
+                  {portfolio.timezone}
+                </span>
               </div>
             </motion.div>
 
@@ -174,7 +236,7 @@ export function Hero() {
             className="lg:col-span-5 relative"
           >
             {/* Ambient Background Glow behind Card */}
-            <div className="absolute -inset-2 bg-gradient-to-r from-[var(--lime)]/20 to-[var(--sky)]/20 rounded-2xl blur-xl opacity-60 -z-10"></div>
+            <div className="absolute -inset-2 bg-gradient-to-r from-[var(--lime)]/20 via-[var(--sky)]/15 to-[var(--lime)]/10 rounded-2xl blur-xl opacity-60 -z-10"></div>
 
             {/* Window Container */}
             <div className="code-preview-window">
@@ -185,11 +247,11 @@ export function Hero() {
                   <span className="w-3 h-3 rounded-full bg-amber-500/80 inline-block"></span>
                   <span className="w-3 h-3 rounded-full bg-emerald-500/80 inline-block"></span>
                   <span className="ml-2 text-[11px] font-mono-custom text-[var(--text-muted)]">
-                    khetesh-studio v1.5
+                    khetesh-studio v2.0
                   </span>
                 </div>
-                <span className="text-[10px] font-mono-custom uppercase tracking-wider text-[var(--lime)] bg-[var(--lime-bg)] px-2 py-0.5 rounded">
-                  Active
+                <span className="text-[10px] font-mono-custom uppercase tracking-wider text-[var(--lime)] bg-[var(--lime-bg)] px-2 py-0.5 rounded font-medium">
+                  Live Preview
                 </span>
               </div>
 
@@ -210,24 +272,31 @@ export function Hero() {
                     >
                       <Icon size={13} className={isActive ? "text-[var(--lime)]" : "opacity-60"} />
                       <span>{tab.label}</span>
+                      {tab.badge && (
+                        <span className="text-[9px] px-1.5 py-0.2 rounded bg-[var(--lime-bg)] text-[var(--lime)] uppercase font-bold">
+                          {tab.badge}
+                        </span>
+                      )}
                     </button>
                   );
                 })}
               </div>
 
               {/* Code / Content Area */}
-              <div className="p-5 font-mono-custom text-xs leading-relaxed overflow-x-auto min-h-[260px] bg-[var(--card)]">
+              <div className="p-5 font-mono-custom text-xs leading-relaxed overflow-x-auto min-h-[290px] bg-[var(--card)] flex flex-col justify-between">
+                
+                {/* TAB 1: Engineer.tsx */}
                 {activeTab === "profile" && (
                   <div className="space-y-1">
                     <p className="text-[var(--text-muted)]">{"// Khetesh Suthar — Frontend Engineer"}</p>
-                    <p className="text-purple-400">export const <span className="text-amber-300">engineer</span> = &#123;</p>
+                    <p className="text-purple-400">export const <span className="text-amber-300">engineer</span>: <span className="text-sky-400">FrontendEngineer</span> = &#123;</p>
                     <p className="pl-4 text-[var(--text)]">name: <span className="text-emerald-400">&quot;{portfolio.name}&quot;</span>,</p>
                     <p className="pl-4 text-[var(--text)]">role: <span className="text-emerald-400">&quot;{portfolio.role}&quot;</span>,</p>
                     <p className="pl-4 text-[var(--text)]">company: <span className="text-emerald-400">&quot;{portfolio.company}&quot;</span>,</p>
                     <p className="pl-4 text-[var(--text)]">experience: <span className="text-sky-400">&quot;3+ Years in Production&quot;</span>,</p>
                     <p className="pl-4 text-[var(--text)]">specialization: [</p>
                     <p className="pl-8 text-amber-300">&quot;ERP & Complex Dashboards&quot;,</p>
-                    <p className="pl-8 text-amber-300">&quot;Data Tables & Workflows&quot;,</p>
+                    <p className="pl-8 text-amber-300">&quot;High-Volume Data Tables&quot;,</p>
                     <p className="pl-8 text-amber-300">&quot;Optimistic UI & Clean Caching&quot;</p>
                     <p className="pl-4 text-[var(--text)]">],</p>
                     <p className="pl-4 text-[var(--text)]">status: <span className="text-emerald-400">&quot;{portfolio.availability}&quot;</span></p>
@@ -235,6 +304,109 @@ export function Hero() {
                   </div>
                 )}
 
+                {/* TAB 2: Live ERP Widget (Interactive Micro-Application) */}
+                {activeTab === "erp-widget" && (
+                  <div className="space-y-3 font-sans">
+                    <div className="flex items-center justify-between pb-2 border-b border-[var(--line)]">
+                      <div className="flex items-center gap-1.5">
+                        <Zap size={13} className="text-[var(--lime)]" />
+                        <span className="text-xs font-mono-custom font-semibold text-[var(--text)]">
+                          EdgeBooks Ledger (Live Demo)
+                        </span>
+                      </div>
+                      <button
+                        onClick={handleResetInvoices}
+                        className="text-[10px] font-mono-custom text-[var(--text-muted)] hover:text-[var(--text)] flex items-center gap-1"
+                        title="Reset state"
+                      >
+                        <RotateCcw size={11} />
+                        <span>Reset</span>
+                      </button>
+                    </div>
+
+                    {/* Filter Pills */}
+                    <div className="flex items-center gap-1.5">
+                      {(["All", "Pending", "Approved"] as const).map((filter) => (
+                        <button
+                          key={filter}
+                          onClick={() => setErpFilter(filter)}
+                          className={`px-2.5 py-1 rounded-md text-[11px] font-mono-custom transition-all ${
+                            erpFilter === filter
+                              ? "bg-[var(--text)] text-[var(--bg)] font-semibold"
+                              : "bg-[var(--card-subtle)] text-[var(--text-muted)] hover:text-[var(--text)] border border-[var(--line)]"
+                          }`}
+                        >
+                          {filter}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Mini Data Grid */}
+                    <div className="space-y-1.5 mt-2">
+                      <AnimatePresence>
+                        {filteredInvoices.map((inv) => (
+                          <motion.div
+                            key={inv.id}
+                            layout
+                            initial={{ opacity: 0, y: 5 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0 }}
+                            className="p-2.5 rounded-lg bg-[var(--card-subtle)] border border-[var(--line)] flex items-center justify-between gap-2 text-xs"
+                          >
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-2">
+                                <span className="font-mono-custom text-[11px] font-semibold text-[var(--text)]">
+                                  {inv.id}
+                                </span>
+                                <span className="text-[11px] text-[var(--text-muted)] truncate max-w-[120px]">
+                                  {inv.client}
+                                </span>
+                              </div>
+                              <span className="font-mono-custom text-[11px] font-medium text-[var(--text)]">
+                                {inv.amount}
+                              </span>
+                            </div>
+
+                            <div className="flex items-center gap-2 shrink-0">
+                              <span
+                                className={`px-2 py-0.5 rounded text-[10px] font-mono-custom ${
+                                  inv.status === "Approved"
+                                    ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
+                                    : "bg-amber-500/15 text-amber-400 border border-amber-500/30"
+                                }`}
+                              >
+                                {inv.status}
+                              </span>
+
+                              {inv.status === "Pending" ? (
+                                <button
+                                  onClick={() => handleApproveInvoice(inv.id)}
+                                  className="px-2 py-1 rounded text-[10px] font-mono-custom font-semibold bg-[var(--lime)] text-black hover:brightness-110 active:scale-95 transition-all shadow-sm"
+                                  title="Approve invoice optimistically"
+                                >
+                                  Approve
+                                </button>
+                              ) : (
+                                <span className="text-emerald-400 p-1" title="Verified">
+                                  <CheckCircle2 size={15} />
+                                </span>
+                              )}
+                            </div>
+                          </motion.div>
+                        ))}
+                      </AnimatePresence>
+                    </div>
+
+                    {optimisticToast && (
+                      <div className="text-[10px] font-mono-custom text-[var(--lime)] flex items-center gap-1.5 pt-1">
+                        <Sparkles size={12} />
+                        <span>{optimisticToast}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* TAB 3: CoreStack.json */}
                 {activeTab === "stack" && (
                   <div className="space-y-1">
                     <p className="text-[var(--text-muted)]">{"// Production-Grade Frontend Stack"}</p>
@@ -249,6 +421,7 @@ export function Hero() {
                   </div>
                 )}
 
+                {/* TAB 4: Architecture.ts */}
                 {activeTab === "philosophy" && (
                   <div className="space-y-1">
                     <p className="text-[var(--text-muted)]">{"// Core Engineering Principles"}</p>

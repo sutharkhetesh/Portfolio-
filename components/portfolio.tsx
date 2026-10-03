@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion, useScroll, useSpring, MotionConfig } from "framer-motion";
 import { Navbar } from "@/components/navbar";
 import { Hero } from "@/components/hero";
@@ -9,14 +10,32 @@ import { Experience } from "@/components/experience";
 import { Projects } from "@/components/projects";
 import { Contact } from "@/components/contact";
 import { Footer } from "@/components/footer";
+import { ResumeModal } from "@/components/resume-modal";
+import { CommandPalette } from "@/components/command-palette";
 
 export function Portfolio() {
+  const [isResumeOpen, setIsResumeOpen] = useState(false);
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
     stiffness: 100,
     damping: 30,
     restDelta: 0.001,
   });
+
+  // Global keyboard shortcut listener for Cmd+K / Ctrl+K
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setIsCommandPaletteOpen((prev) => !prev);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   return (
     <MotionConfig reducedMotion="user">
@@ -31,11 +50,14 @@ export function Portfolio() {
         />
 
         {/* Navigation Bar */}
-        <Navbar />
+        <Navbar 
+          onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
+          onOpenResume={() => setIsResumeOpen(true)}
+        />
 
         {/* Main Content Sections */}
         <main className="relative z-10">
-          <Hero />
+          <Hero onOpenResume={() => setIsResumeOpen(true)} />
           <About />
           <Skills />
           <Experience />
@@ -44,7 +66,22 @@ export function Portfolio() {
         </main>
 
         {/* Footer */}
-        <Footer />
+        <Footer 
+          onOpenResume={() => setIsResumeOpen(true)}
+          onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
+        />
+
+        {/* Global Modals */}
+        <ResumeModal 
+          isOpen={isResumeOpen} 
+          onClose={() => setIsResumeOpen(false)} 
+        />
+
+        <CommandPalette 
+          isOpen={isCommandPaletteOpen}
+          onClose={() => setIsCommandPaletteOpen(false)}
+          onOpenResume={() => setIsResumeOpen(true)}
+        />
       </div>
     </MotionConfig>
   );

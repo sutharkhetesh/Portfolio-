@@ -7,7 +7,10 @@ import {
   MapPin, 
   CheckCircle2, 
   Building2, 
-  Sparkles 
+  Sparkles,
+  TrendingUp,
+  Award,
+  Layers
 } from "lucide-react";
 import { portfolio } from "@/data/portfolio";
 
@@ -60,13 +63,13 @@ export function Experience() {
           {/* Top Role Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[var(--line)]">
             <div>
-              <div className="flex items-center gap-2 mb-1.5">
+              <div className="flex items-center gap-2 mb-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-[var(--lime)] animate-pulse"></span>
                 <span className="text-xs font-mono-custom uppercase tracking-wider text-[var(--lime)] font-semibold">
                   Current Role
                 </span>
                 <span className="text-xs font-mono-custom text-[var(--text-muted)]">·</span>
-                <span className="text-xs font-mono-custom text-[var(--text-muted)]">Full-Time</span>
+                <span className="text-xs font-mono-custom text-[var(--text-muted)]">{exp.type}</span>
               </div>
               <h3 className="font-display text-2xl sm:text-3xl font-semibold text-[var(--text)] tracking-tight">
                 {exp.title}
@@ -94,11 +97,29 @@ export function Experience() {
             {exp.summary}
           </p>
 
+          {/* Key Metrics / Impacts Ribbon */}
+          {exp.metrics && (
+            <div className="p-4 rounded-xl bg-[var(--lime-bg)] border border-[var(--lime)]/30 mb-6 space-y-2">
+              <span className="text-xs font-mono-custom uppercase tracking-wider text-[var(--lime)] font-semibold flex items-center gap-1.5">
+                <TrendingUp size={14} />
+                <span>Quantifiable Engineering Impact:</span>
+              </span>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
+                {exp.metrics.map((m, idx) => (
+                  <div key={idx} className="text-xs font-mono-custom text-[var(--text)] flex items-start gap-1.5">
+                    <span className="text-[var(--lime)] font-bold">✓</span>
+                    <span>{m}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Key Contributions */}
           <div className="space-y-3.5 mb-8">
             <h4 className="text-xs font-mono-custom uppercase tracking-wider text-[var(--text)] font-semibold flex items-center gap-2">
               <Sparkles size={14} className="text-[var(--lime)]" />
-              <span>Key Responsibilities & Impact:</span>
+              <span>Core Responsibilities & Workflow Architecture:</span>
             </h4>
             <div className="grid grid-cols-1 gap-3">
               {exp.points.map((point) => (
@@ -120,7 +141,7 @@ export function Experience() {
                 {exp.technologies.map((tech) => (
                   <span
                     key={tech}
-                    className="px-2.5 py-1 rounded-lg text-xs font-mono-custom bg-[var(--card-subtle)] text-[var(--text)] border border-[var(--line)]"
+                    className="px-2.5 py-1 rounded-lg text-xs font-mono-custom bg-[var(--card-subtle)] text-[var(--text)] border border-[var(--line)] hover:border-[var(--lime)] transition-colors"
                   >
                     {tech}
                   </span>
@@ -159,21 +180,25 @@ export function Experience() {
 
             <div className="p-4 rounded-xl bg-[var(--lime-bg)] border border-[var(--lime)]/30 mb-6">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-mono-custom text-[var(--text)] font-medium">Academic Result</span>
+                <span className="text-xs font-mono-custom text-[var(--text)] font-medium flex items-center gap-1.5">
+                  <Award size={15} className="text-[var(--lime)]" />
+                  <span>Academic Standing</span>
+                </span>
                 <span className="text-sm font-mono-custom font-bold text-[var(--lime)]">{edu.result}</span>
               </div>
             </div>
 
             {edu.coursework && (
               <div>
-                <span className="text-xs font-mono-custom text-[var(--text-muted)] block mb-2.5">
-                  Core Foundations:
+                <span className="text-xs font-mono-custom text-[var(--text-muted)] block mb-2.5 flex items-center gap-1.5">
+                  <Layers size={13} />
+                  <span>Core Foundations:</span>
                 </span>
                 <div className="flex flex-wrap gap-1.5">
                   {edu.coursework.map((course) => (
                     <span
                       key={course}
-                      className="px-2 py-0.5 rounded text-[11px] font-mono-custom bg-[var(--card-subtle)] text-[var(--text)] border border-[var(--line)]"
+                      className="px-2.5 py-1 rounded text-[11px] font-mono-custom bg-[var(--card-subtle)] text-[var(--text)] border border-[var(--line)]"
                     >
                       {course}
                     </span>
@@ -181,6 +206,11 @@ export function Experience() {
                 </div>
               </div>
             )}
+          </div>
+
+          <div className="pt-6 mt-6 border-t border-[var(--line)] text-[11px] font-mono-custom text-[var(--text-muted)] flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-[var(--lime)]"></span>
+            <span>Udaipur, Rajasthan, India</span>
           </div>
         </motion.div>
       </div>

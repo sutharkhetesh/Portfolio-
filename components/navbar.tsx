@@ -2,17 +2,19 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Menu, 
-  X, 
-  ArrowUpRight, 
-  Sparkles, 
-  Github, 
-  Linkedin, 
-  Mail, 
+import {
+  Menu,
+  X,
+  ArrowUpRight,
+  Sparkles,
+  Github,
+  Linkedin,
+  Mail,
   Phone,
   Copy,
-  Check
+  Check,
+  Search,
+  FileText
 } from "lucide-react";
 import { portfolio } from "@/data/portfolio";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -25,7 +27,12 @@ const NAV_ITEMS = [
   { id: "contact", label: "Contact" },
 ];
 
-export function Navbar() {
+interface NavbarProps {
+  onOpenCommandPalette?: () => void;
+  onOpenResume?: () => void;
+}
+
+export function Navbar({ onOpenCommandPalette, onOpenResume }: NavbarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("");
   const [scrolled, setScrolled] = useState(false);
@@ -104,15 +111,14 @@ export function Navbar() {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          scrolled
-            ? "py-3 bg-[var(--nav-bg)] backdrop-blur-xl border-b border-[var(--line)] shadow-sm"
-            : "py-4 sm:py-5 bg-transparent"
-        }`}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
+          ? "py-3 bg-[var(--nav-bg)] backdrop-blur-xl border-b border-[var(--line)] shadow-sm"
+          : "py-4 sm:py-5 bg-transparent"
+          }`}
       >
         <div className="max-w-[1240px] mx-auto px-4 sm:px-6 md:px-8 flex items-center justify-between">
-          
-          {/* Brand / Logo (Responsive across Mobile, Tablet, Desktop) */}
+
+          {/* Brand / Logo */}
           <a
             href="#top"
             onClick={closeMenu}
@@ -134,7 +140,7 @@ export function Navbar() {
               </span>
               <span className="hidden lg:flex items-center gap-1.5 text-[11px] font-mono-custom text-[var(--text-muted)] mt-1">
                 <span className="inline-block w-1.5 h-1.5 rounded-full bg-[var(--lime)]"></span>
-                <span>Frontend & ERP</span>
+                <span>Software Developer</span>
               </span>
               <span className="hidden sm:flex lg:hidden items-center gap-1 text-[10px] font-mono-custom text-[var(--text-muted)] mt-0.5">
                 <span className="inline-block w-1.5 h-1.5 rounded-full bg-[var(--lime)]"></span>
@@ -155,11 +161,10 @@ export function Navbar() {
                   key={item.id}
                   href={`#${item.id}`}
                   aria-current={isActive ? "page" : undefined}
-                  className={`relative px-3 lg:px-4 py-1.5 text-[11px] lg:text-xs font-medium font-mono-custom uppercase tracking-wider transition-colors duration-200 rounded-full ${
-                    isActive
-                      ? "text-[var(--text)] font-semibold"
-                      : "text-[var(--text-muted)] hover:text-[var(--text)]"
-                  }`}
+                  className={`relative px-3 lg:px-4 py-1.5 text-[11px] lg:text-xs font-medium font-mono-custom uppercase tracking-wider transition-colors duration-200 rounded-full ${isActive
+                    ? "text-[var(--text)] font-semibold"
+                    : "text-[var(--text-muted)] hover:text-[var(--text)]"
+                    }`}
                 >
                   {isActive && (
                     <motion.span
@@ -174,29 +179,70 @@ export function Navbar() {
             })}
           </nav>
 
-          {/* Desktop & Tablet Actions */}
-          <div className="hidden md:flex items-center gap-2 lg:gap-3">
+          {/* Desktop & Tablet Controls & CTAs */}
+          <div className="hidden md:flex items-center gap-2 lg:gap-2.5">
+            {/* Command Palette Trigger Button */}
+            {onOpenCommandPalette && (
+              <button
+                type="button"
+                onClick={onOpenCommandPalette}
+                className="hidden lg:flex items-center gap-2 px-2.5 py-1.5 rounded-xl border border-[var(--line)] bg-[var(--card)] text-xs font-mono-custom text-[var(--text-muted)] hover:text-[var(--text)] hover:border-[var(--line-strong)] transition-colors"
+                title="Search or jump to section (Cmd+K)"
+              >
+                <Search size={14} />
+                <span>Search</span>
+                <kbd className="kbd-badge text-[9px] px-1.5 py-0.5">⌘K</kbd>
+              </button>
+            )}
+
+            {/* Resume Button */}
+            {onOpenResume && (
+              <button
+                type="button"
+                onClick={onOpenResume}
+                className="btn-secondary text-xs !py-2 !px-3 !rounded-xl inline-flex items-center gap-1.5"
+                title="View digital resume"
+              >
+                <FileText size={13} className="text-[var(--lime)]" />
+                <span>CV</span>
+              </button>
+            )}
+
+            {/* Theme Toggle */}
             <ThemeToggle />
+
+            {/* Primary Connect Button */}
             <a
               href="#contact"
-              className="btn-primary text-xs !py-2 !px-3 lg:!px-4 !rounded-xl inline-flex items-center gap-1.5 shadow-sm"
+              className="btn-primary text-xs !py-2 !px-3.5 !rounded-xl inline-flex items-center gap-1.5 shadow-sm"
             >
-              <span className="hidden lg:inline">Let&apos;s Connect</span>
-              <span className="inline lg:hidden">Connect</span>
+              <span>Connect</span>
               <ArrowUpRight size={14} />
             </a>
           </div>
 
-          {/* Mobile Right Controls: Theme Toggle & Hamburger Button */}
-          <div className="flex md:hidden items-center gap-2">
+          {/* Mobile Right Controls: Search, Theme Toggle & Hamburger */}
+          <div className="flex md:hidden items-center gap-1.5">
+            {onOpenCommandPalette && (
+              <button
+                type="button"
+                onClick={onOpenCommandPalette}
+                className="p-2 rounded-xl border border-[var(--line)] bg-[var(--card)] text-[var(--text-muted)] hover:text-[var(--text)] focus:outline-none"
+                aria-label="Search command palette"
+              >
+                <Search size={17} />
+              </button>
+            )}
+
             <ThemeToggle />
+
             <button
               type="button"
               onClick={() => setMenuOpen(!menuOpen)}
-              className="p-2 sm:p-2.5 rounded-xl border border-[var(--line)] bg-[var(--card)] text-[var(--text)] focus:outline-none transition-colors hover:bg-[var(--card-subtle)]"
+              className="p-2 rounded-xl border border-[var(--line)] bg-[var(--card)] text-[var(--text)] focus:outline-none transition-colors hover:bg-[var(--card-subtle)]"
               aria-expanded={menuOpen}
               aria-controls="mobile-navigation"
-              aria-label={menuOpen ? "Close main navigation menu" : "Open main navigation menu"}
+              aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
             >
               {menuOpen ? <X size={19} /> : <Menu size={19} />}
             </button>
@@ -237,11 +283,10 @@ export function Navbar() {
                     initial={{ opacity: 0, x: -12 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.2, delay: index * 0.04 }}
-                    className={`flex items-center justify-between p-3.5 sm:p-4 rounded-xl text-base sm:text-lg font-display transition-all ${
-                      isActive
-                        ? "bg-[var(--card)] border border-[var(--lime)]/30 text-[var(--text)] font-semibold shadow-sm"
-                        : "text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--card-subtle)]"
-                    }`}
+                    className={`flex items-center justify-between p-3.5 sm:p-4 rounded-xl text-base sm:text-lg font-display transition-all ${isActive
+                      ? "bg-[var(--card)] border border-[var(--lime)]/30 text-[var(--text)] font-semibold shadow-sm"
+                      : "text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--card-subtle)]"
+                      }`}
                   >
                     <span className="flex items-center gap-3">
                       <span className="font-mono-custom text-xs text-[var(--lime)]">
@@ -258,18 +303,38 @@ export function Navbar() {
               })}
             </div>
 
-            {/* Bottom Utilities, Quick Contact & Socials */}
-            <div className="pt-6 border-t border-[var(--line)] space-y-4">
-              {/* Availability Badge */}
-              <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-[var(--card-subtle)] border border-[var(--line)] text-xs font-mono-custom text-[var(--text-muted)]">
-                <span className="text-[var(--text-muted)]">Status:</span>
-                <span className="flex items-center gap-1.5 text-[var(--text)] font-medium">
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--lime)] opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--lime)]"></span>
-                  </span>
-                  <span>{portfolio.availability}</span>
-                </span>
+            {/* Bottom Utilities, Quick Actions & Socials */}
+            <div className="pt-6 border-t border-[var(--line)] space-y-3.5">
+
+              {/* Quick Actions Row */}
+              <div className="grid grid-cols-2 gap-2">
+                {onOpenResume && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      closeMenu();
+                      setTimeout(onOpenResume, 200);
+                    }}
+                    className="btn-secondary !py-2.5 text-xs flex items-center justify-center gap-2"
+                  >
+                    <FileText size={14} className="text-[var(--lime)]" />
+                    <span>View Resume</span>
+                  </button>
+                )}
+
+                {onOpenCommandPalette && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      closeMenu();
+                      setTimeout(onOpenCommandPalette, 200);
+                    }}
+                    className="btn-secondary !py-2.5 text-xs flex items-center justify-center gap-2"
+                  >
+                    <Search size={14} />
+                    <span>Command ⌘K</span>
+                  </button>
+                )}
               </div>
 
               {/* Direct Quick Email / Action */}

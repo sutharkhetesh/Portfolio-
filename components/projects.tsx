@@ -1,13 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   ArrowUpRight, 
   Github, 
   Info,
-  CheckCircle2
+  CheckCircle2,
+  Search,
+  X,
+  Sparkles
 } from "lucide-react";
 import { portfolio } from "@/data/portfolio";
 import { ProjectModal, type ProjectData } from "@/components/project-modal";
@@ -16,14 +19,28 @@ const FILTER_TABS = ["All", "ERP", "Productivity", "Web Apps"];
 
 export function Projects() {
   const [activeFilter, setActiveFilter] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedProject, setSelectedProject] = useState<ProjectData | null>(null);
 
-  const filteredProjects = activeFilter === "All"
-    ? portfolio.projects
-    : portfolio.projects.filter((p) => p.filterCategory === activeFilter);
+  const filteredProjects = useMemo(() => {
+    return portfolio.projects.filter((p) => {
+      const matchesFilter = activeFilter === "All" || p.filterCategory === activeFilter;
+      const q = searchQuery.toLowerCase().trim();
+      const matchesSearch =
+        !q ||
+        p.title.toLowerCase().includes(q) ||
+        p.description.toLowerCase().includes(q) ||
+        p.stack.some((tech) => tech.toLowerCase().includes(q));
+      return matchesFilter && matchesSearch;
+    });
+  }, [activeFilter, searchQuery]);
 
   const featuredProject = portfolio.projects.find((p) => p.featured) || portfolio.projects[0];
-  const standardProjects = filteredProjects.filter((p) => activeFilter !== "All" || p.id !== featuredProject.id);
+  const showFeaturedInHeader =
+    (activeFilter === "All" || activeFilter === "ERP") && !searchQuery.trim();
+  const standardProjects = filteredProjects.filter(
+    (p) => !showFeaturedInHeader || p.id !== featuredProject.id
+  );
 
   return (
     <section id="projects" className="section-wrap border-t border-[var(--line)]">
@@ -58,28 +75,52 @@ export function Projects() {
         </motion.p>
       </div>
 
-      {/* Filter Tabs */}
-      <div className="flex flex-wrap items-center gap-2 mb-10">
-        {FILTER_TABS.map((tab) => {
-          const isActive = activeFilter === tab;
-          return (
+      {/* Filter Tabs & Search Bar */}
+      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 mb-10">
+        {/* Category Tabs */}
+        <div className="flex flex-wrap items-center gap-2">
+          {FILTER_TABS.map((tab) => {
+            const isActive = activeFilter === tab;
+            return (
+              <button
+                key={tab}
+                onClick={() => setActiveFilter(tab)}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-mono-custom tracking-wider uppercase transition-all duration-200 border ${
+                  isActive
+                    ? "bg-[var(--text)] text-[var(--bg)] font-semibold border-[var(--text)] shadow-sm"
+                    : "bg-[var(--card)] text-[var(--text-muted)] border-[var(--line)] hover:text-[var(--text)] hover:border-[var(--line-strong)]"
+                }`}
+              >
+                {tab}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Search Input */}
+        <div className="relative min-w-[240px]">
+          <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search projects by tech/name..."
+            className="w-full pl-9 pr-8 py-2 rounded-xl bg-[var(--card)] border border-[var(--line)] text-xs font-mono-custom text-[var(--text)] placeholder-[var(--text-muted)] outline-none focus:border-[var(--lime)] transition-colors"
+          />
+          {searchQuery && (
             <button
-              key={tab}
-              onClick={() => setActiveFilter(tab)}
-              className={`px-4 py-2 rounded-xl text-xs font-mono-custom tracking-wider uppercase transition-all duration-200 border ${
-                isActive
-                  ? "bg-[var(--text)] text-[var(--bg)] font-semibold border-[var(--text)] shadow-sm"
-                  : "bg-[var(--card)] text-[var(--text-muted)] border-[var(--line)] hover:text-[var(--text)] hover:border-[var(--line-strong)]"
-              }`}
+              onClick={() => setSearchQuery("")}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text)]"
+              aria-label="Clear search"
             >
-              {tab}
+              <X size={14} />
             </button>
-          );
-        })}
+          )}
+        </div>
       </div>
 
-      {/* Featured Project Showcase (When 'All' or 'ERP' is active) */}
-      {(activeFilter === "All" || activeFilter === "ERP") && (
+      {/* Featured Project Showcase (When 'All' or 'ERP' is active without search) */}
+      {showFeaturedInHeader && (
         <motion.div
           initial={{ opacity: 0, y: 25 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -100,8 +141,9 @@ export function Projects() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[var(--card)]/90 via-transparent to-transparent lg:hidden" />
               <div className="absolute top-4 left-4 flex items-center gap-2">
-                <span className="px-3 py-1 rounded-full text-xs font-mono-custom font-semibold bg-[var(--lime)] text-black shadow-md">
-                  {featuredProject.badge}
+                <span className="px-3 py-1 rounded-full text-xs font-mono-custom font-semibold bg-[var(--lime)] text-black shadow-md flex items-center gap-1.5">
+                  <Sparkles size={12} />
+                  <span>{featuredProject.badge}</span>
                 </span>
                 <span className="px-3 py-1 rounded-full text-xs font-mono-custom bg-black/60 text-white backdrop-blur-sm">
                   {featuredProject.period}
@@ -151,7 +193,7 @@ export function Projects() {
                     onClick={() => setSelectedProject(featuredProject as ProjectData)}
                     className="btn-primary !py-2.5 !px-4 text-xs"
                   >
-                    <span>View Architecture Details</span>
+                    <span>Inspect Architecture</span>
                     <Info size={14} />
                   </button>
                   {featuredProject.live && (
@@ -186,104 +228,110 @@ export function Projects() {
       {/* Grid for Other / Filtered Projects */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <AnimatePresence mode="popLayout">
-          {standardProjects.map((project, index) => (
-            <motion.article
-              key={project.id || project.title}
-              layout
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.45, delay: index * 0.08 }}
-              className="glass-card flex flex-col justify-between overflow-hidden group hover:border-[var(--line-strong)]"
-            >
-              <div>
-                {/* Thumbnail */}
-                <div className="relative aspect-[16/9] w-full overflow-hidden bg-[var(--card-subtle)]">
-                  <Image
-                    src={project.image}
-                    alt={`${project.title} screenshot`}
-                    fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    sizes="(max-width: 768px) 100vw, 33vw"
-                  />
-                  <div className="absolute top-3 left-3 flex items-center gap-1.5">
-                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-mono-custom bg-black/60 text-white backdrop-blur-sm">
-                      {project.category}
-                    </span>
+          {standardProjects.length === 0 ? (
+            <div className="col-span-full p-12 text-center text-xs font-mono-custom text-[var(--text-muted)] glass-card">
+              No projects found matching &quot;{searchQuery}&quot;
+            </div>
+          ) : (
+            standardProjects.map((project, index) => (
+              <motion.article
+                key={project.id || project.title}
+                layout
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.45, delay: index * 0.08 }}
+                className="glass-card flex flex-col justify-between overflow-hidden group hover:border-[var(--lime)]/50"
+              >
+                <div>
+                  {/* Thumbnail */}
+                  <div className="relative aspect-[16/9] w-full overflow-hidden bg-[var(--card-subtle)]">
+                    <Image
+                      src={project.image}
+                      alt={`${project.title} screenshot`}
+                      fill
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                    />
+                    <div className="absolute top-3 left-3 flex items-center gap-1.5">
+                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-mono-custom bg-black/60 text-white backdrop-blur-sm">
+                        {project.category}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Content */}
+                  <div className="p-6">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[11px] font-mono-custom text-[var(--lime)] uppercase tracking-wider">
+                        {project.period || "Project"}
+                      </span>
+                      {project.badge && (
+                        <span className="text-[10px] font-mono-custom text-[var(--text-muted)] bg-[var(--card-subtle)] px-2 py-0.5 rounded border border-[var(--line)]">
+                          {project.badge}
+                        </span>
+                      )}
+                    </div>
+
+                    <h3 className="font-display text-xl font-semibold text-[var(--text)] mb-2.5">
+                      {project.title}
+                    </h3>
+
+                    <p className="text-xs text-[var(--text-muted)] leading-relaxed mb-4 line-clamp-3">
+                      {project.description}
+                    </p>
+
+                    <div className="flex flex-wrap gap-1.5 mb-6">
+                      {project.stack.map((tech) => (
+                        <span
+                          key={tech}
+                          className="px-2 py-0.5 rounded text-[11px] font-mono-custom bg-[var(--card-subtle)] text-[var(--text-muted)] border border-[var(--line)]"
+                        >
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 </div>
 
-                {/* Content */}
-                <div className="p-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[11px] font-mono-custom text-[var(--lime)] uppercase tracking-wider">
-                      {project.period || "Project"}
-                    </span>
-                    {project.badge && (
-                      <span className="text-[10px] font-mono-custom text-[var(--text-muted)] bg-[var(--card-subtle)] px-2 py-0.5 rounded border border-[var(--line)]">
-                        {project.badge}
-                      </span>
+                {/* Bottom Actions */}
+                <div className="p-6 pt-0 border-t border-[var(--line)] flex items-center justify-between mt-auto">
+                  <button
+                    onClick={() => setSelectedProject(project as ProjectData)}
+                    className="text-xs font-mono-custom text-[var(--text)] hover:text-[var(--lime)] flex items-center gap-1.5 font-medium transition-colors"
+                  >
+                    <Info size={14} />
+                    <span>Inspect Architecture</span>
+                  </button>
+
+                  <div className="flex items-center gap-2">
+                    {project.live && (
+                      <a
+                        href={project.live}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-1.5 rounded-lg text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--card-subtle)]"
+                        aria-label="Live Demo"
+                      >
+                        <ArrowUpRight size={16} />
+                      </a>
+                    )}
+                    {project.github && (
+                      <a
+                        href={project.github}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-1.5 rounded-lg text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--card-subtle)]"
+                        aria-label="GitHub Source"
+                      >
+                        <Github size={16} />
+                      </a>
                     )}
                   </div>
-
-                  <h3 className="font-display text-xl font-semibold text-[var(--text)] mb-2.5">
-                    {project.title}
-                  </h3>
-
-                  <p className="text-xs text-[var(--text-muted)] leading-relaxed mb-4 line-clamp-3">
-                    {project.description}
-                  </p>
-
-                  <div className="flex flex-wrap gap-1.5 mb-6">
-                    {project.stack.map((tech) => (
-                      <span
-                        key={tech}
-                        className="px-2 py-0.5 rounded text-[11px] font-mono-custom bg-[var(--card-subtle)] text-[var(--text-muted)] border border-[var(--line)]"
-                      >
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
                 </div>
-              </div>
-
-              {/* Bottom Actions */}
-              <div className="p-6 pt-0 border-t border-[var(--line)] flex items-center justify-between mt-auto">
-                <button
-                  onClick={() => setSelectedProject(project as ProjectData)}
-                  className="text-xs font-mono-custom text-[var(--text)] hover:text-[var(--lime)] flex items-center gap-1.5 font-medium transition-colors"
-                >
-                  <Info size={14} />
-                  <span>Inspect Architecture</span>
-                </button>
-
-                <div className="flex items-center gap-2">
-                  {project.live && (
-                    <a
-                      href={project.live}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="p-1.5 rounded-lg text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--card-subtle)]"
-                      aria-label="Live Demo"
-                    >
-                      <ArrowUpRight size={16} />
-                    </a>
-                  )}
-                  {project.github && (
-                    <a
-                      href={project.github}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="p-1.5 rounded-lg text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--card-subtle)]"
-                      aria-label="GitHub Source"
-                    >
-                      <Github size={16} />
-                    </a>
-                  )}
-                </div>
-              </div>
-            </motion.article>
-          ))}
+              </motion.article>
+            ))
+          )}
         </AnimatePresence>
       </div>
 
