@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useRef, useState } from "react";
+import { motion, AnimatePresence, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import { 
   ArrowDownRight, 
   ArrowUpRight, 
@@ -49,6 +49,10 @@ const INITIAL_INVOICES: MockInvoice[] = [
 ];
 
 export function Hero({ onOpenResume }: HeroProps) {
+  const heroRef = useRef<HTMLElement>(null);
+  const reducedMotion = useReducedMotion();
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
+  const artY = useTransform(scrollYProgress, [0, 1], [0, 70]);
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState("profile");
 
@@ -84,13 +88,14 @@ export function Hero({ onOpenResume }: HeroProps) {
   });
 
   return (
-    <section id="top" className="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden">
+    <section ref={heroRef} id="top" className="hero-section relative overflow-hidden">
       <div className="section-wrap !py-0">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-14 items-center">
           
           {/* Left Column: Headline & Bio */}
           <div className="lg:col-span-7 flex flex-col items-start">
             
+            <p className="hero-kicker font-mono-custom">DEVELOPER / THINKER / PROBLEM SOLVER</p>
             {/* Availability Badge */}
             <motion.div
               initial={{ opacity: 0, y: 15 }}
@@ -110,12 +115,11 @@ export function Hero({ onOpenResume }: HeroProps) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.1 }}
-              className="font-display text-4xl sm:text-6xl lg:text-7xl font-semibold tracking-tight text-[var(--text)] leading-[1.04] mb-6"
+              className="hero-heading font-display"
             >
-              Interfaces with <br />
-              <span className="text-[var(--lime)] relative inline-block">
-                intent & clarity.
-              </span>
+              <motion.span className="inline-block" initial={{ opacity: 0, y: 22 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.12 }}>Complex ideas.</motion.span><br />
+              <motion.span className="gradient-text inline-block" initial={{ opacity: 0, y: 22 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.22 }}>Seamless</motion.span><br />
+              <motion.span className="inline-block" initial={{ opacity: 0, y: 22 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.32 }}>experiences<span className="text-[var(--lime)]">.</span></motion.span>
             </motion.h1>
 
             {/* Subtitle / Bio */}
@@ -123,7 +127,7 @@ export function Hero({ onOpenResume }: HeroProps) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-base sm:text-lg text-[var(--text-muted)] leading-relaxed max-w-xl mb-8 font-normal"
+              className="hero-description text-[var(--text-muted)] leading-relaxed mb-8"
             >
               Hi, I&apos;m <span className="text-[var(--text)] font-medium">{portfolio.name}</span>, a frontend developer at <span className="text-[var(--text)] font-medium">{portfolio.company}</span>. I design and engineer resilient, data-dense interfaces for enterprise ERP workflows and high-impact web products using React, Next.js, and TypeScript.
             </motion.p>
@@ -228,12 +232,25 @@ export function Hero({ onOpenResume }: HeroProps) {
 
           </div>
 
+          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1.2, delay: 0.2 }} className="lg:col-span-5 hero-art" style={{ y: reducedMotion ? 0 : artY }} aria-hidden="true">
+            <div className="orbital-grid" />
+            <div className="orbit orbit-one" /><div className="orbit orbit-two" /><div className="orbit orbit-three" />
+            <div className="hero-sphere"><span className="sphere-symbol">&lt;/&gt;</span></div>
+            <span className="orbit-label label-react">React <span>↗</span></span>
+            <span className="orbit-label label-type">TypeScript <span>✦</span></span>
+            <span className="orbit-label label-next">Next.js <span>↗</span></span>
+            <div className="art-caption font-mono-custom"><span className="text-[var(--sky)]">✦</span> WHERE LOGIC MEETS CRAFT</div>
+          </motion.div>
+
+        </div>
+        <div className="hero-bottom font-mono-custom"><a href="#about">SCROLL TO EXPLORE <ArrowDownRight size={16} /></a><span>REACT · NEXT.JS · TYPESCRIPT</span><span>BUILT WITH INTENT. EVERY PIXEL.</span></div>
+        <details className="studio-disclosure"><summary><span><Code2 size={16} /> Inside the engineering studio</span><span className="text-[var(--text-muted)]">Explore the code & live ERP demo +</span></summary>
           {/* Right Column: Interactive Code & Architecture Studio */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.7, delay: 0.25 }}
-            className="lg:col-span-5 relative"
+            className="studio-panel relative"
           >
             {/* Ambient Background Glow behind Card */}
             <div className="absolute -inset-2 bg-gradient-to-r from-[var(--lime)]/20 via-[var(--sky)]/15 to-[var(--lime)]/10 rounded-2xl blur-xl opacity-60 -z-10"></div>
@@ -264,6 +281,7 @@ export function Hero({ onOpenResume }: HeroProps) {
                     <button
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id)}
+                      aria-pressed={isActive}
                       className={`flex items-center gap-2 px-3.5 py-2.5 transition-colors border-r border-[var(--line)] text-left whitespace-nowrap ${
                         isActive
                           ? "bg-[var(--card)] text-[var(--text)] font-semibold border-b-2 border-b-[var(--lime)]"
@@ -330,6 +348,7 @@ export function Hero({ onOpenResume }: HeroProps) {
                         <button
                           key={filter}
                           onClick={() => setErpFilter(filter)}
+                          aria-pressed={erpFilter === filter}
                           className={`px-2.5 py-1 rounded-md text-[11px] font-mono-custom transition-all ${
                             erpFilter === filter
                               ? "bg-[var(--text)] text-[var(--bg)] font-semibold"
@@ -456,11 +475,10 @@ export function Hero({ onOpenResume }: HeroProps) {
             {/* Floating Tech Badges */}
             <div className="hidden sm:flex items-center gap-2 absolute -bottom-4 -left-4 bg-[var(--card)] border border-[var(--line)] shadow-lg rounded-xl px-3 py-1.5 text-xs font-mono-custom text-[var(--text)] float-animation">
               <Sparkles size={14} className="text-[var(--lime)]" />
-              <span>React 19 + Next.js 15 Ready</span>
+              <span>React + Next.js</span>
             </div>
           </motion.div>
-
-        </div>
+        </details>
       </div>
     </section>
   );

@@ -111,18 +111,19 @@ export function Navbar({ onOpenCommandPalette, onOpenResume }: NavbarProps) {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
+        data-scrolled={scrolled}
+        className={`premium-nav fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
           ? "py-3 bg-[var(--nav-bg)] backdrop-blur-xl border-b border-[var(--line)] shadow-sm"
           : "py-4 sm:py-5 bg-transparent"
           }`}
       >
-        <div className="max-w-[1240px] mx-auto px-4 sm:px-6 md:px-8 flex items-center justify-between">
+        <div className="nav-shell mx-auto flex items-center justify-between">
 
           {/* Brand / Logo */}
           <a
             href="#top"
             onClick={closeMenu}
-            className="group flex items-center gap-2.5 sm:gap-3 focus:outline-none"
+            className="group flex items-center gap-2.5 sm:gap-3"
             aria-label="Back to top of portfolio"
           >
             <div className="relative flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[var(--text)] text-[var(--bg)] font-semibold font-display text-xs sm:text-sm tracking-tight transition-transform duration-300 group-hover:scale-105 shadow-sm shrink-0">
@@ -169,11 +170,11 @@ export function Navbar({ onOpenCommandPalette, onOpenResume }: NavbarProps) {
                   {isActive && (
                     <motion.span
                       layoutId="activeNavIndicator"
-                      className="absolute inset-0 bg-[var(--lime-bg)] border border-[var(--lime)]/30 rounded-full -z-10"
+                      className="absolute inset-0 bg-[var(--lime-bg)] border border-[var(--lime)]/30 rounded-full"
                       transition={{ type: "spring", stiffness: 350, damping: 30 }}
                     />
                   )}
-                  {item.label}
+                  <span className="relative">{item.label}</span>
                 </a>
               );
             })}
@@ -227,7 +228,7 @@ export function Navbar({ onOpenCommandPalette, onOpenResume }: NavbarProps) {
               <button
                 type="button"
                 onClick={onOpenCommandPalette}
-                className="p-2 rounded-xl border border-[var(--line)] bg-[var(--card)] text-[var(--text-muted)] hover:text-[var(--text)] focus:outline-none"
+                className="p-2 rounded-xl border border-[var(--line)] bg-[var(--card)] text-[var(--text-muted)] hover:text-[var(--text)]"
                 aria-label="Search command palette"
               >
                 <Search size={17} />
@@ -239,7 +240,7 @@ export function Navbar({ onOpenCommandPalette, onOpenResume }: NavbarProps) {
             <button
               type="button"
               onClick={() => setMenuOpen(!menuOpen)}
-              className="p-2 rounded-xl border border-[var(--line)] bg-[var(--card)] text-[var(--text)] focus:outline-none transition-colors hover:bg-[var(--card-subtle)]"
+              className="p-2 rounded-xl border border-[var(--line)] bg-[var(--card)] text-[var(--text)] transition-colors hover:bg-[var(--card-subtle)]"
               aria-expanded={menuOpen}
               aria-controls="mobile-navigation"
               aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}

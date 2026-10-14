@@ -138,6 +138,7 @@ export function Skills() {
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
+                aria-pressed={isSelected}
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-mono-custom tracking-wider uppercase transition-all duration-200 border ${
                   isSelected
                     ? "bg-[var(--text)] text-[var(--bg)] font-semibold border-[var(--text)] shadow-sm"
@@ -157,6 +158,7 @@ export function Skills() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            aria-label="Search skills"
             placeholder="Search skills (e.g. React, GraphQL)..."
             className="w-full pl-9 pr-8 py-2 rounded-xl bg-[var(--card)] border border-[var(--line)] text-xs font-mono-custom text-[var(--text)] placeholder-[var(--text-muted)] outline-none focus:border-[var(--lime)] transition-colors"
           />
@@ -173,7 +175,7 @@ export function Skills() {
       </div>
 
       {/* Category Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="skills-bento grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         <AnimatePresence mode="popLayout">
           {filteredCategories.length === 0 ? (
             <div className="col-span-full p-12 text-center text-xs font-mono-custom text-[var(--text-muted)] glass-card">
@@ -189,10 +191,11 @@ export function Skills() {
                   key={category}
                   layout
                   initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true, amount: 0.15 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.35, delay: idx * 0.05 }}
-                  className="glass-card p-6 flex flex-col justify-between hover:border-[var(--lime)]/50"
+                  className="skill-card spotlight-card glass-card p-6 flex flex-col justify-between hover:border-[var(--lime)]/50"
                 >
                   <div>
                     <div className="flex items-center justify-between mb-4">

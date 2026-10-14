@@ -62,7 +62,7 @@ export function Projects() {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="section-title"
         >
-          Engineered for real-world reliability.
+          Selected work. Real impact.
         </motion.h2>
         <motion.p
           initial={{ opacity: 0, y: 16 }}
@@ -85,6 +85,7 @@ export function Projects() {
               <button
                 key={tab}
                 onClick={() => setActiveFilter(tab)}
+                aria-pressed={isActive}
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-mono-custom tracking-wider uppercase transition-all duration-200 border ${
                   isActive
                     ? "bg-[var(--text)] text-[var(--bg)] font-semibold border-[var(--text)] shadow-sm"
@@ -104,6 +105,7 @@ export function Projects() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            aria-label="Search projects"
             placeholder="Search projects by tech/name..."
             className="w-full pl-9 pr-8 py-2 rounded-xl bg-[var(--card)] border border-[var(--line)] text-xs font-mono-custom text-[var(--text)] placeholder-[var(--text-muted)] outline-none focus:border-[var(--lime)] transition-colors"
           />
@@ -126,14 +128,15 @@ export function Projects() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="glass-card mb-10 overflow-hidden group hover:border-[var(--lime)]"
+          data-tilt
+          className="featured-project spotlight-card glass-card mb-10 overflow-hidden group hover:border-[var(--lime)]"
         >
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-0">
             {/* Project Image */}
-            <div className="lg:col-span-7 relative aspect-[16/9] lg:aspect-auto min-h-[320px] overflow-hidden bg-[var(--card-subtle)]">
+            <div className="project-media lg:col-span-7 relative aspect-[16/9] lg:aspect-auto min-h-[320px] overflow-hidden bg-[var(--card-subtle)]">
               <Image
                 src={featuredProject.image}
-                alt={`${featuredProject.title} interface preview`}
+                alt={`${featuredProject.title} project illustration`}
                 fill
                 className="object-cover transition-transform duration-700 group-hover:scale-105"
                 sizes="(max-width: 1024px) 100vw, 60vw"
@@ -193,7 +196,7 @@ export function Projects() {
                     onClick={() => setSelectedProject(featuredProject as ProjectData)}
                     className="btn-primary !py-2.5 !px-4 text-xs"
                   >
-                    <span>Inspect Architecture</span>
+                    <span>Explore Case Study</span>
                     <Info size={14} />
                   </button>
                   {featuredProject.live && (
@@ -226,9 +229,9 @@ export function Projects() {
       )}
 
       {/* Grid for Other / Filtered Projects */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="project-grid grid grid-cols-1 md:grid-cols-2 gap-7">
         <AnimatePresence mode="popLayout">
-          {standardProjects.length === 0 ? (
+          {standardProjects.length === 0 && !showFeaturedInHeader ? (
             <div className="col-span-full p-12 text-center text-xs font-mono-custom text-[var(--text-muted)] glass-card">
               No projects found matching &quot;{searchQuery}&quot;
             </div>
@@ -238,17 +241,19 @@ export function Projects() {
                 key={project.id || project.title}
                 layout
                 initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.15 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.45, delay: index * 0.08 }}
-                className="glass-card flex flex-col justify-between overflow-hidden group hover:border-[var(--lime)]/50"
+                data-tilt
+                className="project-card spotlight-card glass-card flex flex-col justify-between overflow-hidden group hover:border-[var(--lime)]/50"
               >
                 <div>
                   {/* Thumbnail */}
-                  <div className="relative aspect-[16/9] w-full overflow-hidden bg-[var(--card-subtle)]">
+                  <div className="project-media relative aspect-[16/10] w-full overflow-hidden bg-[var(--card-subtle)]">
                     <Image
                       src={project.image}
-                      alt={`${project.title} screenshot`}
+                      alt={`${project.title} project illustration`}
                       fill
                       className="object-cover transition-transform duration-500 group-hover:scale-105"
                       sizes="(max-width: 768px) 100vw, 33vw"
@@ -295,13 +300,13 @@ export function Projects() {
                 </div>
 
                 {/* Bottom Actions */}
-                <div className="p-6 pt-0 border-t border-[var(--line)] flex items-center justify-between mt-auto">
+                <div className="p-6 pt-5 border-t border-[var(--line)] flex items-center justify-between mt-auto">
                   <button
                     onClick={() => setSelectedProject(project as ProjectData)}
                     className="text-xs font-mono-custom text-[var(--text)] hover:text-[var(--lime)] flex items-center gap-1.5 font-medium transition-colors"
                   >
                     <Info size={14} />
-                    <span>Inspect Architecture</span>
+                    <span>Explore Case Study</span>
                   </button>
 
                   <div className="flex items-center gap-2">

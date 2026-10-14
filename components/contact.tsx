@@ -109,7 +109,7 @@ export function Contact() {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="section-title"
         >
-          Have a good idea or role in mind?
+          Let’s build something great.
         </motion.h2>
         <motion.p
           initial={{ opacity: 0, y: 16 }}
@@ -263,6 +263,7 @@ export function Contact() {
                       key={type}
                       type="button"
                       onClick={() => setSelectedInquiry(type)}
+                      aria-pressed={isSelected}
                       className={`px-3 py-1.5 rounded-lg text-xs font-mono-custom transition-all ${
                         isSelected
                           ? "bg-[var(--text)] text-[var(--bg)] font-semibold shadow-sm"
@@ -278,12 +279,14 @@ export function Contact() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-mono-custom uppercase tracking-wider text-[var(--text-muted)] mb-2">
+                <label htmlFor="contact-name" className="block text-xs font-mono-custom uppercase tracking-wider text-[var(--text-muted)] mb-2">
                   Your Name *
                 </label>
                 <input
                   type="text"
+                  id="contact-name"
                   name="name"
+                  autoComplete="name"
                   required
                   maxLength={120}
                   placeholder="e.g. Alex Rivera"
@@ -292,12 +295,14 @@ export function Contact() {
               </div>
 
               <div>
-                <label className="block text-xs font-mono-custom uppercase tracking-wider text-[var(--text-muted)] mb-2">
+                <label htmlFor="contact-email" className="block text-xs font-mono-custom uppercase tracking-wider text-[var(--text-muted)] mb-2">
                   Email Address *
                 </label>
                 <input
                   type="email"
+                  id="contact-email"
                   name="email"
+                  autoComplete="email"
                   required
                   maxLength={320}
                   placeholder="alex@company.com"
@@ -307,11 +312,12 @@ export function Contact() {
             </div>
 
             <div>
-              <label className="block text-xs font-mono-custom uppercase tracking-wider text-[var(--text-muted)] mb-2">
+              <label htmlFor="contact-message" className="block text-xs font-mono-custom uppercase tracking-wider text-[var(--text-muted)] mb-2">
                 Project or Inquiry Message *
               </label>
               <textarea
-                name="message"
+                id="contact-message"
+                  name="message"
                 required
                 maxLength={5000}
                 rows={5}

@@ -1,6 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, animate, useInView, useReducedMotion } from "framer-motion";
+import { useEffect, useRef } from "react";
 import { 
   ArrowUpRight, 
   Cpu, 
@@ -51,6 +52,25 @@ const PRINCIPLES = [
   },
 ];
 
+function StatValue({ value }: { value: string }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const inView = useInView(ref, { once: true });
+  const reduced = useReducedMotion();
+  useEffect(() => {
+    if (!inView || reduced || !/^\d+\+$/.test(value)) return;
+    const target = ref.current;
+    const count = animate(0, parseInt(value), {
+      duration: 1.2,
+      ease: "easeOut",
+      onUpdate: (latest) => {
+        if (target) target.textContent = `${Math.round(latest).toString().padStart(2, "0")}+`;
+      },
+    });
+    return () => count.stop();
+  }, [inView, reduced, value]);
+  return <span ref={ref} aria-label={value}>{value}</span>;
+}
+
 export function About() {
   return (
     <section id="about" className="section-wrap border-t border-[var(--line)]">
@@ -85,75 +105,29 @@ export function About() {
         </motion.p>
       </div>
 
-      {/* Main Two-Column Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start mb-16">
-        {/* Left Column: Lead Philosophy */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.55 }}
-          className="lg:col-span-5"
-        >
-          <div className="p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-[var(--card)] to-[var(--card-subtle)] border border-[var(--line)] shadow-sm mb-6">
-            <span className="text-xs font-mono-custom text-[var(--lime)] uppercase tracking-wider block mb-3 font-semibold">
-              Mission & Focus
-            </span>
-            <h3 className="font-display text-2xl sm:text-3xl font-medium tracking-tight text-[var(--text)] leading-snug mb-4">
-              I like the moment when intricate business rules transform into effortless digital workflows.
-            </h3>
-            <p className="text-[var(--text-muted)] text-sm sm:text-base leading-relaxed mb-6 font-normal">
-              {portfolio.about}
-            </p>
-            <a
-              href={`mailto:${portfolio.email}`}
-              className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold font-mono-custom text-[var(--text)] border-b-2 border-[var(--lime)] pb-1 transition-all hover:text-[var(--lime)] hover:gap-3"
-            >
-              <span>Let&apos;s discuss opportunities</span>
-              <ArrowUpRight size={16} />
-            </a>
-          </div>
+      <div className="about-editorial">
+        <motion.div initial={{ opacity: 0, y: 25 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="identity-card">
+          <span className="font-mono-custom text-[10px] tracking-widest text-[var(--text-muted)]">THE PERSON BEHIND THE PIXELS</span>
+          <span className="identity-monogram" aria-hidden="true">KS<span className="text-[var(--sky)]">.</span></span>
+          <div><h3 className="font-display text-xl mb-1">{portfolio.name}</h3><p className="text-xs text-[var(--text-muted)]">{portfolio.role} · {portfolio.location}</p></div>
         </motion.div>
-
-        {/* Right Column: Key Pillars */}
-        <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-3 gap-5">
-          {PILLARS.map((pillar, index) => {
-            const Icon = pillar.icon;
-            return (
-              <motion.div
-                key={pillar.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="glass-card p-6 flex flex-col justify-between group hover:border-[var(--lime)]/50"
-              >
-                <div>
-                  <div className="w-10 h-10 rounded-xl bg-[var(--lime-bg)] text-[var(--lime)] flex items-center justify-center mb-5 group-hover:scale-105 transition-transform">
-                    <Icon size={20} />
-                  </div>
-                  <h4 className="font-display text-base font-semibold text-[var(--text)] mb-3 leading-snug">
-                    {pillar.title}
-                  </h4>
-                  <p className="text-xs text-[var(--text-muted)] leading-relaxed mb-4">
-                    {pillar.description}
-                  </p>
-                </div>
-
-                <div className="flex flex-wrap gap-1.5 pt-3 border-t border-[var(--line)]">
-                  {pillar.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="text-[10px] font-mono-custom px-2 py-0.5 rounded bg-[var(--card-subtle)] text-[var(--text-muted)] border border-[var(--line)]"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </motion.div>
-            );
-          })}
-        </div>
+        <motion.div initial={{ opacity: 0, y: 25 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }} className="about-copy self-center">
+          <span className="eyebrow">Mission & Focus</span>
+          <h3 className="font-display">I like the moment when intricate business rules transform into effortless digital workflows.</h3>
+          <p className="mb-7">{portfolio.about}</p>
+          <a href={`mailto:${portfolio.email}`} className="inline-flex items-center gap-3 text-sm text-[var(--lime)] border-b border-[var(--lime)] pb-2">Let&apos;s discuss opportunities <ArrowUpRight size={16} /></a>
+        </motion.div>
+      </div>
+      <div className="about-pillars">
+        {PILLARS.map((pillar, index) => {
+          const Icon = pillar.icon;
+          return <motion.div key={pillar.title} initial={{ opacity: 0, y: 25 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.08 }} className="glass-card spotlight-card p-7">
+            <Icon size={24} className="text-[var(--lime)] mb-6" />
+            <h4 className="font-display text-lg mb-3">{pillar.title}</h4>
+            <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-6">{pillar.description}</p>
+            <div className="flex flex-wrap gap-2">{pillar.tags.map(tag => <span key={tag} className="text-[10px] font-mono-custom text-[var(--text-muted)] px-2 py-1 border border-[var(--line)] rounded">{tag}</span>)}</div>
+          </motion.div>;
+        })}
       </div>
 
       {/* Engineering Principles Ribbon */}
@@ -203,10 +177,10 @@ export function About() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.45, delay: idx * 0.08 }}
-            className="glass-card p-6 text-center sm:text-left flex flex-col justify-between hover:border-[var(--lime)]/40"
+            className="about-stat text-left flex flex-col justify-between"
           >
             <span className="font-display text-3xl sm:text-4xl font-semibold text-[var(--text)] tracking-tight">
-              {value}
+              <StatValue value={value} />
             </span>
             <span className="font-mono-custom text-xs uppercase tracking-wider text-[var(--text-muted)] mt-2">
               {label}

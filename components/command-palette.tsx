@@ -22,6 +22,7 @@ import {
   Check,
 } from "lucide-react";
 import { useTheme } from "next-themes";
+import { useDialogFocus } from "@/components/use-dialog-focus";
 import { portfolio } from "@/data/portfolio";
 
 interface CommandPaletteProps {
@@ -40,6 +41,7 @@ interface CommandItem {
 }
 
 export function CommandPalette({ isOpen, onClose, onOpenResume }: CommandPaletteProps) {
+  const dialogRef = useDialogFocus(isOpen);
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [copiedAction, setCopiedAction] = useState<string | null>(null);
@@ -86,7 +88,7 @@ export function CommandPalette({ isOpen, onClose, onOpenResume }: CommandPalette
     setTimeout(() => {
       const el = document.getElementById(id);
       if (el) {
-        el.scrollIntoView({ behavior: "smooth" });
+        el.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
       }
     }, 100);
   }, [onClose]);
@@ -254,6 +256,11 @@ export function CommandPalette({ isOpen, onClose, onOpenResume }: CommandPalette
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.96, y: -10 }}
           transition={{ duration: 0.2 }}
+          ref={dialogRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Search portfolio commands"
+          tabIndex={-1}
           className="relative w-full max-w-xl glass-card !p-0 z-10 bg-[var(--card)] border border-[var(--line)] shadow-2xl overflow-hidden rounded-2xl flex flex-col"
         >
           {/* Search Header */}
@@ -268,12 +275,14 @@ export function CommandPalette({ isOpen, onClose, onOpenResume }: CommandPalette
                 setSelectedIndex(0);
               }}
               onKeyDown={handleKeyDown}
+              aria-label="Search commands"
               placeholder="Type a command or search..."
               className="flex-1 bg-transparent text-sm text-[var(--text)] placeholder-[var(--text-muted)] outline-none font-sans"
             />
             {query && (
               <button
                 type="button"
+                aria-label="Clear command search"
                 onClick={() => setQuery("")}
                 className="p-1 rounded text-[var(--text-muted)] hover:text-[var(--text)]"
               >

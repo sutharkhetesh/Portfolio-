@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { useDialogFocus } from "@/components/use-dialog-focus";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   X, 
@@ -40,6 +41,7 @@ interface ProjectModalProps {
 }
 
 export function ProjectModal({ project, onClose }: ProjectModalProps) {
+  const dialogRef = useDialogFocus(Boolean(project));
   const [activeTab, setActiveTab] = useState<"overview" | "architecture" | "stack">("overview");
 
   useEffect(() => {
@@ -79,6 +81,11 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ type: "spring", duration: 0.5, bounce: 0.1 }}
+          ref={dialogRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Project case study"
+          tabIndex={-1}
           className="relative w-full max-w-3xl glass-card !p-0 z-10 my-8 overflow-hidden bg-[var(--card)] border border-[var(--line)] shadow-2xl flex flex-col max-h-[90vh]"
         >
           {/* Header Image */}

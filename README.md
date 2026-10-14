@@ -39,3 +39,15 @@ npm run build
 ```
 
 # Portfolio-
+
+## Interface
+
+The portfolio uses a purple/cyan design system with a dark default theme and a retained light theme. Framer Motion handles section reveals, the experience timeline, heading reveals, and hero parallax; pointer effects are disabled on touch devices and for reduced-motion preferences. The live ERP widget and code tabs are inside the expandable engineering studio below the hero.
+
+The existing Manrope, Space Grotesk, and DM Mono fonts are self-hosted in `app/fonts` with their original licenses, so builds do not require Google Fonts downloads. Project images and portfolio content remain in `data/portfolio.ts`. Dialogs trap keyboard focus and restore focus to their triggers.
+
+If the environment restricts Turbopack worker ports, use the supported webpack production builder:
+
+```bash
+npm run build -- --webpack
+```

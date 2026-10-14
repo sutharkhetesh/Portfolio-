@@ -18,6 +18,7 @@ import {
   Github,
   Linkedin,
 } from "lucide-react";
+import { useDialogFocus } from "@/components/use-dialog-focus";
 import { portfolio } from "@/data/portfolio";
 
 interface ResumeModalProps {
@@ -26,6 +27,7 @@ interface ResumeModalProps {
 }
 
 export function ResumeModal({ isOpen, onClose }: ResumeModalProps) {
+  const dialogRef = useDialogFocus(isOpen);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -59,7 +61,7 @@ export function ResumeModal({ isOpen, onClose }: ResumeModalProps) {
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+      <div className="resume-overlay fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
         {/* Backdrop */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -75,6 +77,11 @@ export function ResumeModal({ isOpen, onClose }: ResumeModalProps) {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.96, y: 15 }}
           transition={{ type: "spring", duration: 0.45, bounce: 0.1 }}
+          ref={dialogRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Digital resume"
+          tabIndex={-1}
           className="relative w-full max-w-4xl glass-card !p-0 z-10 my-6 bg-[var(--card)] border border-[var(--line)] shadow-2xl overflow-hidden resume-print-area max-h-[92vh] flex flex-col"
         >
           {/* Top Control Bar */}

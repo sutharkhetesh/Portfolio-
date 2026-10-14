@@ -1,11 +1,15 @@
 import type { Metadata } from "next";
-import { DM_Mono, Manrope, Space_Grotesk } from "next/font/google";
+import localFont from "next/font/local";
 import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 
-const manrope = Manrope({ subsets: ["latin"], variable: "--font-manrope" }); 
-const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-space" });
-const dmMono = DM_Mono({ subsets: ["latin"], weight: ["400", "500"], variable: "--font-mono" });
+// Self-host the existing typefaces so builds do not depend on Google Fonts.
+const manrope = localFont({ src: "./fonts/manrope-latin.woff2", weight: "200 800", variable: "--font-manrope", display: "swap" });
+const spaceGrotesk = localFont({ src: "./fonts/space-grotesk-latin.woff2", weight: "300 700", variable: "--font-space", display: "swap" });
+const dmMono = localFont({ src: [
+  { path: "./fonts/dm-mono-regular-latin.woff2", weight: "400" },
+  { path: "./fonts/dm-mono-medium-latin.woff2", weight: "500" },
+], variable: "--font-mono", display: "swap" });
 
 export const metadata: Metadata = {
   title: "Khetesh Suthar | Frontend Developer",

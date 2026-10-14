@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, useScroll, useSpring, MotionConfig } from "framer-motion";
+import { AmbientEffects } from "@/components/ambient-effects";
 import { Navbar } from "@/components/navbar";
 import { Hero } from "@/components/hero";
 import { About } from "@/components/about";
@@ -39,13 +40,15 @@ export function Portfolio() {
 
   return (
     <MotionConfig reducedMotion="user">
-      <div className="relative min-h-screen bg-[var(--bg)] text-[var(--text)] selection:bg-[var(--lime)] selection:text-black">
+      <div className="relative min-h-screen bg-[var(--bg)] text-[var(--text)] selection:bg-[var(--lime)] selection:text-white">
+        <a className="skip-link" href="#main-content">Skip to content</a>
+        <AmbientEffects />
         {/* Subtle Ambient Background Mesh & Lighting */}
         <div className="ambient-canvas" aria-hidden="true" />
 
         {/* Scroll Progress Indicator Bar at top */}
         <motion.div
-          className="fixed top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[var(--lime)] via-[var(--sky)] to-[var(--lime)] z-50 origin-left"
+          className="no-print fixed top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[var(--lime)] via-[var(--sky)] to-[var(--lime)] z-50 origin-left"
           style={{ scaleX }}
         />
 
@@ -56,7 +59,7 @@ export function Portfolio() {
         />
 
         {/* Main Content Sections */}
-        <main className="relative z-10">
+        <main id="main-content" className="relative z-10">
           <Hero onOpenResume={() => setIsResumeOpen(true)} />
           <About />
           <Skills />
